@@ -1,6 +1,3 @@
-from pysquareblob.utils.logs import logs
-
-
 class Object:
 
     """Represents the Object stored on blob user's account
