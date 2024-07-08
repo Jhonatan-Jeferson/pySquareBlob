@@ -24,6 +24,16 @@ class Object:
     def __repr__(self) -> str:
         
         return f"Object(id={self.id} , size={self.size/1000}KB)"
+    
+    @property
+    def acess_link(self) -> str:
+
+        slash_index = self._id.find("/")
+        obj_id = self._id[:slash_index]
+        prefix_and_name = self._id[:slash_index]
+        slash_index = prefix_and_name.find("/")+1
+        obj_name = prefix_and_name[slash_index:]
+        return f"https://public-blob.squarecloud.dev/{obj_id}/{obj_name}"
 
     @property
     def id(self) -> str:
