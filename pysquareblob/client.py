@@ -1,4 +1,4 @@
-import aiohttp
+from aiohttp import ClientSession
 from .account import Account
 from .objects import Object
 from .utils.logs import logs
@@ -28,18 +28,19 @@ class Client:
     def __init__(self, api_key: str):
 
         self.__headers = {"Authorization": api_key}
+        self._connection = ClientSession
         self.cached = {
             "account": None,
             "objects": None
         }
 
     @logs(message="requesting objects list at: https://blob.squarecloud.app/v1/objects")
-    async def _object_list(self):
+    async def _object_list(self) -> list[Object]:
 
         """Request the objects list
         DO NOT USE THIS METHOD, INSTEAD USE \"objects\" property to get objects list doing requests only when necessary"""
 
-        async with aiohttp.ClientSession(headers=self.__headers) as http:
+        async with self._connection(headers=self.__headers) as http:
             url = "https://blob.squarecloud.app/v1/objects"
             async with http.get(url) as req:
                 json: dict = await req.json()
@@ -56,7 +57,7 @@ class Client:
         """Requests the account info of an user
         DO NOT USE THIS METHOD, instead use \"account_info\" property to get accounts info doing requests only when necessary"""
 
-        async with aiohttp.ClientSession(headers=self.__headers) as http:
+        async with self._connection(headers=self.__headers) as http:
             url = "https://blob.squarecloud.app/v1/account/stats"
             async with http.get(url) as req:
                 json: dict = await req.json()
@@ -91,7 +92,7 @@ class Client:
                 security_hash: bool=False
             ) -> dict[str, str|int]:
 
-        async with aiohttp.ClientSession(headers=self.__headers) \
+        async with self._connection(headers=self.__headers) \
         as http:
             url = "https://blob.squarecloud.app/v1/objects"
             payload = {"file": {}}
@@ -114,7 +115,7 @@ class Client:
         for _object in object_list:
             payload["objects"].append(_object.id)
 
-        async with aiohttp.ClientSession(headers=self.__headers) as http:
+        async with self._connection(headers=self.__headers) as http:
             url = "https://blob.squarecloud.app/v1/objects"
             async with http.delete(url, json=payload) as req:
                 json: dict = await req.json()
