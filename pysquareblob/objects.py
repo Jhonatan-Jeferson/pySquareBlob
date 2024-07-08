@@ -28,12 +28,8 @@ class Object:
     @property
     def acess_link(self) -> str:
 
-        slash_index = self._id.find("/")
-        obj_id = self._id[:slash_index]
-        prefix_and_name = self._id[:slash_index]
-        slash_index = prefix_and_name.find("/")+1
-        obj_name = prefix_and_name[slash_index:]
-        return f"https://public-blob.squarecloud.dev/{obj_id}/{obj_name}"
+        
+        return f"https://public-blob.squarecloud.dev/{self._id}"
 
     @property
     def id(self) -> str:
