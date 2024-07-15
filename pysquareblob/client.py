@@ -33,6 +33,7 @@ class Client:
             "account": None,
             "objects": None
         }
+        self._clean_cache_timer = clean_cache_timer
         self._cache_clear = get_event_loop().call_later(clean_cache_timer, create_task, self.__clean_cache())
 
     @logs(message="Limpando cache")
@@ -42,6 +43,7 @@ class Client:
             "account": None,
             "objects": None
         }
+        self._cache_clear = None
 
     @logs(message="requesting objects list at: https://blob.squarecloud.app/v1/objects")
     async def _object_list(self) -> list[Object]:
@@ -55,17 +57,9 @@ class Client:
         for _object in resp.get("objects", []):
             objects.append(Object(**_object))
         self.cached["objects"] = objects
+        if self._cache_clear is None: 
+            self._cache_clear = get_event_loop().call_later(self._clean_cache_timer, create_task, self.__clean_cache())
         return objects
-        # async with self._connection(headers=self.__headers) as http:
-        #     url = "https://blob.squarecloud.app/v1/objects"
-        #     async with http.get(url) as req:
-        #         json: dict = await req.json()
-        #         resp: dict = json.get("response", None)
-        #         objects: list[Object] = []
-        #         for _object in resp.get("objects", []):
-        #             objects.append(Object(**_object))
-        #         self.cached["objects"] = objects
-        #         return objects
             
     @logs(message="requesting account info at: https://blob.squarecloud.app/v1/account/stats")
     async def _get_account_infos(self) -> Account:
@@ -77,15 +71,9 @@ class Client:
         resp: dict = json.get("response", None)
         acc = Account(**resp)
         self.cached["account"] = acc
+        if self._cache_clear is None: 
+            self._cache_clear = get_event_loop().call_later(self._clean_cache_timer, create_task, self.__clean_cache())
         return acc
-        # async with self._connection(headers=self.__headers) as http:
-        #     url = "https://blob.squarecloud.app/v1/account/stats"
-        #     async with http.get(url) as req:
-        #         json: dict = await req.json()
-        #         resp = json.get("response", None)
-        #         acc = Account(**resp)
-        #         self.cached["account"] = acc
-        #         return acc
         
     @property
     @logs(message="getting account info, first trying to get cached info")
@@ -146,22 +134,9 @@ class Client:
 
             json = await self.__connection.make_request('objects', 'post', data=payload, params=query)
             resp = json.get("response", None)
+            if self._cache_clear is None: 
+                self._cache_clear = get_event_loop().call_later(self._clean_cache_timer, create_task, self.__clean_cache())
             return resp
-        # async with self._connection(headers=self.__headers) \
-        # as http:
-        #     url = "https://blob.squarecloud.app/v1/objects"
-        #     payload = {"file": {}}
-        #     query = {"name": name}
-        #     query.update({"auto_download": "true"}) if auto_download else query.update({"auto_download": "false"})
-        #     query.update({"security_hash": "true"}) if security_hash else query.update({"security_hash": "false"})
-        #     if prefix is not None: query.update({"prefix": prefix})
-        #     if expire is not None and (expire > 0 and expire <= 365): query.update({"expire": expire})
-        #     with open(path, "rb") as file:
-        #         payload = {"file": file}
-        #         async with http.post(url, data=payload, params=query) as req: 
-        #             json: dict = await req.json()
-        #             res = json.get("response", None)
-        #             return res
 
     @logs(message="request delete at: https://blob.squarecloud.app/v1/objects")
     async def delete_object(self, object_list: list[Object]) -> dict[str, str]: 
@@ -181,11 +156,6 @@ class Client:
 
         json = await self.__connection.make_request('objects', 'delete', json=payload)
         resp = json.get("status")
+        if self._cache_clear is None: 
+            self._cache_clear = get_event_loop().call_later(self._clean_cache_timer, create_task, self.__clean_cache())
         return resp
-
-        # async with self._connection(headers=self.__headers) as http:
-        #     url = "https://blob.squarecloud.app/v1/objects"
-        #     async with http.delete(url, json=payload) as req:
-        #         json: dict = await req.json()
-        #         resp = json.get("status")
-        #         return resp
