@@ -7,7 +7,7 @@ def logs(message: str):
 
         """Decorator of logs"""
 
-        async def wrapper(*args, **kwargs):
+        async def wrapper( *args, **kwargs):
 
             """Wrapper of logs"""
 
