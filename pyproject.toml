@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "pysquareblob"
+version = "2.0.0"
+description = "This project is just a simple way to interact with Square Cloud Blob service"
+authors = ["Jhonatan Jeferson <jhonatanjefersonoliveira@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11.0"
+aiohttp = "^3.11.10"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
