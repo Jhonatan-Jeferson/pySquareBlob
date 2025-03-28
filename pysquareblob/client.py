@@ -1,4 +1,4 @@
-"""This file contains the main interface to interact with Blob"""
+"""This module contains the main interface to interact with Blob"""
 
 from io import BytesIO, BufferedIOBase
 import os
@@ -15,15 +15,15 @@ class Client:
     ------------------
     api_key: str
         Your Square Cloud Api key
-
     clean_cache_timer: float
         This keyword-only argument sets the timer to clear object list cache of the class
+    download_path: str
+        The directory where downloaded objects will be stored. Default is 'blobDownloads/'
 
     Property
     ------------------
     account_info: Account
         This property gets the account infos
-    
     objects: list[Object]
         This property gets the objects list stored in Square Cloud Blob
         
@@ -42,28 +42,38 @@ class Client:
             os.mkdir(download_path)
         self.download_path = download_path
     
-    async def fetch_object_list(self) -> list[Object]:
+    async def fetch_object_list(self)-> list[Object]:
         """Makes a request to the API to fetch and returns a list of objects.
-        """
         
+        Returns
+        -----------
+        list[Object]: The list of objects
+        """
         endpoint = Endpoint.objects()
         self.__logger.info(f'Fetching objects in Square Cloud Blob from {endpoint}.')
         request: Response = await self.__http.make_request(endpoint)
         objects = request.response.get('objects', [])
         self.__logger.info(f'Found {len(objects)} objects in Square Cloud Blob')
         for item in objects:
-            self._cache.objects.append(Object(**item))
+            if (obj := Object(**item)) not in self._cache.objects:
+                self._cache.objects.append(obj)
+        self._cache.schedule_clean()
         return self._cache.objects
     
     async def fetch_account_info(self) -> Account:
         """Makes a request to the API to fetch the account information
         
-        The account info updates every two hours, so don't make too many requests"""
+        The account info updates every two hours, so don't make too many requests
+        
+        Returns
+        -----------
+        Account: The account information"""
         
         endpoint = Endpoint.account_info()
         self.__logger.info(f'Fetching account info in Square Cloud Blob from {endpoint}.')
         request: Response = await self.__http.make_request(Endpoint.account_info())
         self._cache.account_info = Account(**request.response)
+        self._cache.schedule_clean()
         return self._cache.account_info
     
     async def upload_object(
@@ -76,7 +86,8 @@ class Client:
         Params
         ------------
         name: str
-            The name of the file to upload(without extension). Must adhere to the a to z, A to Z, 0 to 9, and _ pattern.
+            The name of the file to upload(without extension). 
+            Must adhere to the a to z, A to Z, 0 to 9, and _ pattern.
         file: str | BufferedIOBase | BytesIO
             The file to upload. Must be a path to the file, or BytesIO or a BufferedIOBase.
         
@@ -84,7 +95,8 @@ class Client:
         prefix: str
             The prefix of the object
         expire: int
-            The expiration time of the object. The expiration period expressed in days, ranging from 1 to 365. if None, it will never expire.
+            The expiration time of the object. The expiration period expressed in days,
+            ranging from 1 to 365. if None, it will never expire.
         auto_download: bool
             If True, dowloads the file when access the URL.
         security_hash: bool
@@ -105,25 +117,23 @@ class Client:
         request: Response = await self.__http.make_request(endpoint, file=target_object, params=query)
         return request
                 
-    async def delete_object(self, objects: Object | list[Object]) -> Response:
+    async def delete_object(self, object: Object) -> Response:
         """Delete an object from Square Cloud Blob
         
         Params
         ------------------
         objects: Object | list[Object]
-            a single object or a list of objects that must be deleted from blob, this arg must be a single Object or a list of Objects like the property objects of this class
+            a single object or a list of objects that must be deleted from blob, 
+            this arg must be a single Object or a list of Objects like the property objects of this class
         
         Returns
         ---------------
         Response: The response of the deletion request"""
-
         endpoint = Endpoint.delete()
-        if isinstance(objects, Object):
-            objects = [objects]
-        payload: dict[str, list[str]] = {"objects": [blob_object.id for blob_object in objects]}
+        payload: dict[str, list[str]] = {"objects": object.id}
         self.__logger.info(f'Deleting the object from Square Cloud Blob service on endpoint {endpoint}')
         request: Response = await self.__http.make_request(endpoint, json=payload)
-        self._cache.objects = list(filter(lambda obj: obj.id not in objects, self._cache.objects))
+        self._cache.objects = list(filter(lambda obj: obj.id not in object, self._cache.objects))
         return request
     
     async def download_object(self, obj: Object) -> None:

@@ -22,7 +22,6 @@ class File:
             self.__validate_type(file)
             self.bytes = open(file, 'rb')
             
-            
     def __validate_size(self, file: str | BytesIO | BufferedIOBase) -> None:
         """Check if the file size is within the allowed range
         
@@ -67,5 +66,4 @@ class File:
             'js', 'p12'
         )
         if extension not in allowed:
-            
             raise ValueError(f'Invalid file type: {extension}')

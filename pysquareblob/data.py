@@ -62,25 +62,20 @@ class Object:
     
     @property
     def url(self) -> str:
-        
         return f"https://public-blob.squarecloud.dev/{self._id}"
 
     @property
     def id(self) -> str:
-
         return self._id
     
     @property
     def size(self) -> int:
-
         return self._size
     
     @property
     def created_at(self) -> str:
-
         return self._created_at
     
     @property
     def expires_at(self) -> str:
-
         return self._expires_at

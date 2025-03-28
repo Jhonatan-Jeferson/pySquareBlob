@@ -3,6 +3,7 @@ from typing import Any, Literal
 
 from .endpoints import Endpoint
 from ..utils import Logger
+from ..errors import *
 
  
 class Response:
@@ -33,7 +34,7 @@ class Response:
     def __init__(self, json: dict[str, Any], endpoint: Endpoint, status_code: int) -> None:
         self._data = json
         self.endpoint = endpoint
-        self.response: list[dict[str, Any]]|dict[str,int]|dict[str] = self._data.get('response', None)
+        self.response: list[dict[str, Any]]|dict[str,int]|dict[str, Any] = self._data.get('response', None)
         self.status: Literal['success', 'error'] = self._data.get('status')
         self.status_code = status_code
         self.__check_for_errors()
@@ -48,17 +49,15 @@ class Response:
             error = self._data.get("code")
             self.__logger.warning(f'Error occurred during request: {error}')
             if error == 'ACCESS_DENIED':
-                self.__logger.warning(f'Check if your API key is valid')
+                self.__logger.error(f'Check if your API key is valid', Unauthorized('Unauthorized.'))
             elif error == 'INVALID_OBJECT_NAME':
-                self.__logger.warning(f'Check if the object name or prefix is valid')
+                self.__logger.error(f'Check if the object name or prefix is valid', InvalidObjectName('Object name invalid.'))
             elif error == 'TOO_MANY_OBJECTS':
-                self.__logger.warning(f'Too many objects to exclude')
+                self.__logger.error(f'Too many objects to exclude', TooManyObjects('too many objects to delete.'))
             elif error == 'FAILED_DELETE':
-                self.__logger.warning(f'Failed to delete the object')
+                self.__logger.error(f'Failed to delete the object', FailedToDelete('Something failed while deleting.'))
         
     
-
-
 class HttpConnector:
     """This is the connection representation
     
