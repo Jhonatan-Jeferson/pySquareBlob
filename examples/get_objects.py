@@ -16,12 +16,11 @@ async def main():
     print(objects_list)
 
     # so its just use the item
-    try:
-        first = objects_list[0]
-        print(first.id)
-        print(first.size)
-        print(first.created_at)
-        print(first.expires_at)
-    except Exception:
-        pass
+    if len(objects_list) > 0:
+        item = objects_list[0]
+        print(
+            "ID: " + item.id, "Size(B): "+item.size, "URL: "+item.url, 
+            "Created at: "+item.created_at, "Expires at: "+item.expires_at,
+            sep='\n'
+        )
         

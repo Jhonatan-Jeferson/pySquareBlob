@@ -11,7 +11,7 @@ async def main():
 
     # now pass the list you wanna remove to the method
     # for this example i'll just remove one
-    remove_list = [obj_list[0]]
-    request = await blob_client.delete_object(remove_list)
+    remove_obj = obj_list[0]
+    request = await blob_client.delete_object(remove_obj)
 
     print(request)
