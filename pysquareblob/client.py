@@ -3,6 +3,7 @@
 from io import BytesIO, BufferedIOBase
 import os
 
+from .data import Billing
 from .utils import *
 from ._http import *
 from .data import *
@@ -71,8 +72,28 @@ class Client:
         
         endpoint = Endpoint.account_info()
         self.__logger.info(f'Fetching account info in Square Cloud Blob from {endpoint}.')
-        request: Response = await self.__http.make_request(Endpoint.account_info())
-        self._cache.account_info = Account(**request.response)
+        request: Response = await self.__http.make_request(endpoint)
+
+        response = request.response
+
+        usage_data = response.get('usage')
+        plan_data = response.get('plan')
+        billing_data = response.get('billing')
+
+        billing = Billing(
+            extra_storage=billing_data.get('extraStorage'),
+            storage_price=billing_data.get('storagePrice'),
+            objects_price=billing_data.get('objectsPrice'),
+            total_estimate=billing_data.get('totalEstimate')
+        )
+
+        self._cache.account_info = Account(
+            objects=usage_data.get('objects'),
+            storage_occupied=usage_data.get('storage'),
+            plan_included=plan_data.get('included'),
+            billing=billing
+
+        )
         self._cache.schedule_clean()
         return self._cache.account_info
     

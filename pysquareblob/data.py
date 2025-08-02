@@ -3,34 +3,57 @@
 from dataclasses import dataclass
 
 
-__all__ = ['Account', 'Object']
+__all__ = ['Account', 'Object', 'Billing']
+
+
+@dataclass(frozen=True)
+class Billing:
+    """Represents a user's billing information
+    Parameters
+    ----------------
+
+    extra_storage: int 
+        The extra space used, in bytes.
+
+    storage_price: int
+        The total price of storage for all objects in your account, in BRL.
+
+    objects_price: int
+        The total price of all objects in your account, in BRL.
+    
+    total_estimate: int
+        The total price of all objects in your account, in BRL.
+    
+    """
+
+    extra_storage: int
+    storage_price: int
+    objects_price: int
+    total_estimate: int
 
 @dataclass(frozen=True)
 class Account:
     """Represents the account status of an user
     Parameters
     ----------------
-    file_count: int
+    objects: int
         The total number of objects in your account.
 
     storage_occupied: int
         The total size of all objects in your account, in bytes.
 
-    price: int
-        The total price of storage for all objects in your account, in BRL.
+    plan_included: int
+        The total storage size included on the plan, in bytes.
 
-    objects_price: int
-        The total price of all objects in your account, in BRL.
+    billing: Billing
+        Represents a user's billing information
 
-    total:
-        The total price of all objects in your account, in BRL.
     """
 
     objects: int
-    size: int
-    storagePrice: int
-    objectsPrice: int
-    totalEstimate: int
+    storage_occupied: int
+    plan_included: int
+    billing: Billing
 
 
 class Object:
