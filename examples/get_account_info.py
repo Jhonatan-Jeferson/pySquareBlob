@@ -13,10 +13,12 @@ async def main():
 
     # now use it however you want
     print(account_info.objects)
-    print(account_info.size)
-    print(account_info.objectsPrice)
-    print(account_info.storagePrice)
-    print(account_info.totalEstimate)
+    print(account_info.storage_occupied)
+    print(account_info.billing.extra_storage)
+    print(account_info.billing.objects_price)
+    print(account_info.billing.storage_price)
+    print(account_info.billing.total_estimate)
+    print(account_info.plan_included)
 
     # if you don't delete the variable called 'blob_client'
     # it will maintain your account info in cache
