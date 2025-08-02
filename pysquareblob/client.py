@@ -122,18 +122,18 @@ class Client:
         
         Params
         ------------------
-        objects: Object | list[Object]
-            a single object or a list of objects that must be deleted from blob, 
-            this arg must be a single Object or a list of Objects like the property objects of this class
+        objects: Object 
+            A single object that must be deleted from the blob.
+            This argument must be an instance of Object, similar to those in the 'objects' property of this class.
         
         Returns
         ---------------
         Response: The response of the deletion request"""
         endpoint = Endpoint.delete()
-        payload: dict[str, list[str]] = {"objects": object.id}
+        payload: dict[str, list[str]] = {"object": object.id}
         self.__logger.info(f'Deleting the object from Square Cloud Blob service on endpoint {endpoint}')
         request: Response = await self.__http.make_request(endpoint, json=payload)
-        self._cache.objects = list(filter(lambda obj: obj.id not in object, self._cache.objects))
+        self._cache.objects = list(filter(lambda obj: obj.id != object.id, self._cache.objects))
         return request
     
     async def download_object(self, obj: Object) -> None:
