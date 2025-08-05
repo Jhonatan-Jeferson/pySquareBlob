@@ -3,6 +3,7 @@
 from io import BytesIO, BufferedIOBase
 import os
 
+from .data import Billing
 from .utils import *
 from ._http import *
 from .data import *
@@ -71,8 +72,28 @@ class Client:
         
         endpoint = Endpoint.account_info()
         self.__logger.info(f'Fetching account info in Square Cloud Blob from {endpoint}.')
-        request: Response = await self.__http.make_request(Endpoint.account_info())
-        self._cache.account_info = Account(**request.response)
+        request: Response = await self.__http.make_request(endpoint)
+
+        response = request.response
+
+        usage_data = response.get('usage')
+        plan_data = response.get('plan')
+        billing_data = response.get('billing')
+
+        billing = Billing(
+            extra_storage=billing_data.get('extraStorage'),
+            storage_price=billing_data.get('storagePrice'),
+            objects_price=billing_data.get('objectsPrice'),
+            total_estimate=billing_data.get('totalEstimate')
+        )
+
+        self._cache.account_info = Account(
+            objects=usage_data.get('objects'),
+            storage_occupied=usage_data.get('storage'),
+            plan_included=plan_data.get('included'),
+            billing=billing
+
+        )
         self._cache.schedule_clean()
         return self._cache.account_info
     
@@ -122,18 +143,18 @@ class Client:
         
         Params
         ------------------
-        objects: Object | list[Object]
-            a single object or a list of objects that must be deleted from blob, 
-            this arg must be a single Object or a list of Objects like the property objects of this class
+        objects: Object 
+            A single object that must be deleted from the blob.
+            This argument must be an instance of Object, similar to those in the 'objects' property of this class.
         
         Returns
         ---------------
         Response: The response of the deletion request"""
         endpoint = Endpoint.delete()
-        payload: dict[str, list[str]] = {"objects": object.id}
+        payload: dict[str, list[str]] = {"object": object.id}
         self.__logger.info(f'Deleting the object from Square Cloud Blob service on endpoint {endpoint}')
         request: Response = await self.__http.make_request(endpoint, json=payload)
-        self._cache.objects = list(filter(lambda obj: obj.id not in object, self._cache.objects))
+        self._cache.objects = list(filter(lambda obj: obj.id != object.id, self._cache.objects))
         return request
     
     async def download_object(self, obj: Object) -> None:

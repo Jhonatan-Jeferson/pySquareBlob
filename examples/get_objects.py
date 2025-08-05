@@ -19,7 +19,7 @@ async def main():
     if len(objects_list) > 0:
         item = objects_list[0]
         print(
-            "ID: " + item.id, "Size(B): "+item.size, "URL: "+item.url, 
+            f"ID: {item.id}", f"Size(B): {item.size}" "URL: "+item.url, 
             "Created at: "+item.created_at, "Expires at: "+item.expires_at,
             sep='\n'
         )
