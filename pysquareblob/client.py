@@ -99,8 +99,8 @@ class Client:
     
     async def upload_object(
         self, name: str, file: str | BufferedIOBase | BytesIO,
-        *, prefix: str = None, expire: int | None = None,
-        auto_download: bool = True, security_hash: bool = False
+        *, mimetype: str|None = None, prefix: str|None = None, expire: int | None = None,
+        auto_download: bool = False, security_hash: bool = False
     ) -> Response:
         """Uploads a file to the blob service
         
@@ -124,8 +124,8 @@ class Client:
             Set to true if a security hash is required."""
         
         endpoint = Endpoint.upload()
-        target_object: File = File(file)
-        query = {
+        target_object: File = File(file, mimetype)
+        query: dict[str, str|int] = {
             "name": name,
             "auto_download": str(auto_download).lower(),
             "security_hash": str(security_hash).lower()
@@ -151,7 +151,7 @@ class Client:
         ---------------
         Response: The response of the deletion request"""
         endpoint = Endpoint.delete()
-        payload: dict[str, list[str]] = {"object": object.id}
+        payload: dict[str, str] = {"object": object.id}
         self.__logger.info(f'Deleting the object from Square Cloud Blob service on endpoint {endpoint}')
         request: Response = await self.__http.make_request(endpoint, json=payload)
         self._cache.objects = list(filter(lambda obj: obj.id != object.id, self._cache.objects))
