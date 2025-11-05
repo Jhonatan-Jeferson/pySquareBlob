@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pysquareblob"
-version = "2.0.0"
+version = "2.1.0"
 description = "This project is just a simple way to interact with Square Cloud Blob service"
 authors = ["Jhonatan Jeferson <jhonatanjefersonoliveira@gmail.com>"]
 readme = "README.md"
