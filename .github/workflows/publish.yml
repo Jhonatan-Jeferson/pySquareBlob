@@ -1,11 +1,6 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow
 name: "Publish Package"
-on: 
-  release:
-    types:
-      - released
-      - edited
-      - published
+on: release
 jobs:
   publish:
     runs-on: ubuntu-latest
