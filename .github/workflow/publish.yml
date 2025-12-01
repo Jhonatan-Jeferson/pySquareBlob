@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow
+name: "Publish Package"
+on: 
+  release:
+    types:
+      - released
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.14'
+
+      - name: Install Pipx
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install pipx
+
+      - name: Install Poetry
+        run: |
+          pipx install poetry 
+          export PATH="$HOME/.local/bin:$PATH"
+          source ~/.bashrc
+
+      - name: Publish Package
+        run: |
+          poetry config pypi-token.pypi ${{ secrets.PYPI_API_TOKEN }}
+          poetry publish --build
+
+
