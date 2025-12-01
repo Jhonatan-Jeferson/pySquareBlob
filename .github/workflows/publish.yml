@@ -4,6 +4,8 @@ on:
   release:
     types:
       - released
+      - edited
+      - published
 jobs:
   publish:
     runs-on: ubuntu-latest
