@@ -2,6 +2,7 @@
 
 from io import BytesIO, BufferedIOBase
 import os
+from typing import Any, cast
 
 from .data import Billing
 from .utils import *
@@ -101,7 +102,7 @@ class Client:
         self, name: str, file: str | BufferedIOBase | BytesIO,
         *, mimetype: str|None = None, prefix: str|None = None, expire: int | None = None,
         auto_download: bool = False, security_hash: bool = False
-    ) -> Response:
+    ) -> Object:
         """Uploads a file to the blob service
         
         Params
@@ -136,7 +137,9 @@ class Client:
             query.update({'expire': expire})
         self.__logger.info(f'Uploading the file to Square Cloud Blob service on endpoint {endpoint}')
         request: Response = await self.__http.make_request(endpoint, file=target_object, params=query)
-        return request
+        data = cast(dict[str, Any], request.response)
+        object_data = Object(**data)
+        return object_data
                 
     async def delete_object(self, object: Object) -> Response:
         """Delete an object from Square Cloud Blob
