@@ -89,7 +89,7 @@ class HttpConnector:
         
         headers = {
             'Authorization': self.__api_key,
-            'User-Agent': 'pysquareblob/2.1.0'
+            'User-Agent': 'pysquareblob/3.0.0'
         }
         if endpoint == Endpoint.upload():
             data = aiohttp.FormData()
