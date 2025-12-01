@@ -1,6 +1,8 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow
 name: "Publish Package"
-on: release
+on: 
+  release:
+    types: [published]
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -26,5 +28,3 @@ jobs:
         run: |
           poetry config pypi-token.pypi ${{ secrets.PYPI_API_TOKEN }}
           poetry publish --build
-
-
