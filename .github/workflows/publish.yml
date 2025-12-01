@@ -13,16 +13,13 @@ jobs:
         with:
           python-version: '3.14'
 
-      - name: Install Pipx
+      - name: Install Pipx & Poetry
         run: |
           python3 -m pip install --upgrade pip
           pip install pipx
-
-      - name: Install Poetry
-        run: |
-          pipx install poetry 
-          export PATH="$HOME/.local/bin:$PATH"
-          source ~/.bashrc
+          pipx install poetry
+          # adiciona bin do pipx ao path de forma persistente
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Publish Package
         run: |
