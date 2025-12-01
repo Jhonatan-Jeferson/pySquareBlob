@@ -1,8 +1,12 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow
 name: "Publish Package"
-on: release
+on:
+  push:
+    tags:
+      - "v*"
 jobs:
   publish:
+    name: "Publish to PyPI"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
